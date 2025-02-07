@@ -1,3 +1,4 @@
+import os
 import subprocess
 import kfp
 import kfp.client
@@ -7,7 +8,7 @@ from kfp import compiler
 run_notebook_in_proc = components.load_component_from_file('run-notebook-out-of-proc-component.yaml')
 
 @dsl.pipeline(name="MLFlow Experiment Pipeline")
-def mlflow_experiment_pipeline(git_url: str):
+def mlflow_experiment_pipeline(git_url: str, env: dict):
     # Run MLFlow Experiment
     run_task = run_notebook_in_proc(git_url=git_url,
                                     run_from_dir="data/src/train",
@@ -33,7 +34,8 @@ kfp_client.create_run_from_pipeline_func(
     mlflow_experiment_pipeline,
     experiment_name="MLFlow Experiment v1",
     arguments={
-        "git_url": "https://github.com/glroland/ml-pipeline-experiments.git"
+        "git_url": "https://github.com/glroland/ml-pipeline-experiments.git",
+        "env": os.environ
     }
 )
 
