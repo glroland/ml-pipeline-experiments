@@ -5,12 +5,11 @@ from kfp import dsl
 from kfp.dsl import InputPath, Output, Artifact, Model, ClassificationMetrics
 from kfp import compiler
 
-@dsl.component(base_image="registry.home.glroland.com/paas/ai-runtime-3.11:20250130-104034",
+@dsl.component(base_image="quay.io/modh/runtime-images:runtime-pytorch-ubi9-python-3.11-20250130",
                packages_to_install=["papermill", "GitPython", "ipykernel", "jupyter"])
 def run_notebook_out_of_proc(git_url: str,
                              run_from_dir: str,
                              notebook_name: str,
-                             db_conn_str: str,
                              parameters: dict,
                              jupyter_nb_output: Output[Artifact],
                              model: Output[Model]):
@@ -28,7 +27,6 @@ def run_notebook_out_of_proc(git_url: str,
     # build parameter list
     primary_parameter_list = dict(onnx_path = model.path,
                                   output_dir = temp_nb_output_dir,
-                                  db_conn_str = db_conn_str,
                                   roc_path = os.path.join(temp_nb_output_dir, "roc.jpg"),
                                   dataset_size = 50,
                                   neural_network_width = 10)
