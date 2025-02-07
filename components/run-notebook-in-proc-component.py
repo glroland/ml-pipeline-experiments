@@ -11,9 +11,9 @@ def run_notebook_in_proc(git_url: str,
                          run_from_dir: str,
                          notebook_name: str,
                          parameters: dict,
+                         env: dict,
                          jupyter_nb_output: Output[Artifact],
                          model: Output[Model],
-                         roc_image: Output[Artifact],
                          metrics: Output[ClassificationMetrics]):
     # setup output directories
     import os
@@ -29,17 +29,19 @@ def run_notebook_in_proc(git_url: str,
 
     # build parameter list
     primary_parameter_list = dict(onnx_path = model.path,
-                                  output_dir = temp_nb_output_dir,
-                                  roc_path = roc_image.path, #os.path.join(temp_nb_output_dir, "roc.jpg"),
-                                  dataset_size = 50,
-                                  neural_network_width = 10)
+                                  output_dir = temp_nb_output_dir)
     primary_parameter_list.update(parameters)
+    primary_parameter_list.update(env)
     print (f"Parameters: {primary_parameter_list}")
 
     # change run directory
     new_dir = os.path.join(temp_repo_path, run_from_dir)
     print (f"Changing directory to: {new_dir}")
     os.chdir(new_dir)
+
+    # append environment variables
+    for key, value in env.items():
+        os.environ[key] = value
 
     # apply parameters to notebook
     print (f"Applying parameters .  Filename={notebook_name}")

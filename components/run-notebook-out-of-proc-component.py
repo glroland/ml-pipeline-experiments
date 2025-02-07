@@ -26,10 +26,7 @@ def run_notebook_out_of_proc(git_url: str,
 
     # build parameter list
     primary_parameter_list = dict(onnx_path = model.path,
-                                  output_dir = temp_nb_output_dir,
-                                  roc_path = os.path.join(temp_nb_output_dir, "roc.jpg"),
-                                  dataset_size = 50,
-                                  neural_network_width = 10)
+                                  output_dir = temp_nb_output_dir)
     primary_parameter_list.update(parameters)
     print (f"Parameters: {primary_parameter_list}")
 
