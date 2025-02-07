@@ -44,7 +44,7 @@
               "filename": "mlflow_experiment.ipynb"
             },
             "ui_data": {
-              "label": "mlflow_experiment.ipynb",
+              "label": "mlflow_external_envs.ipynb",
               "image": "/notebook/mlflow/my-workbench/static/elyra/notebook.svg",
               "x_pos": 248,
               "y_pos": 146,

@@ -1,4 +1,3 @@
-import subprocess
 import kfp
 import kfp.client
 from kfp import dsl

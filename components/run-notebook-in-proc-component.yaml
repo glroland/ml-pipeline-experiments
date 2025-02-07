@@ -76,9 +76,8 @@ deploymentSpec:
           \   metrics: Output[ClassificationMetrics]):\n    # setup output directories\n\
           \    import os\n    temp_path = \"/tmp\"\n    temp_repo_path = os.path.join(temp_path,\
           \ \"repo\")\n    temp_nb_output_dir = os.path.join(temp_path, \"nb_output\"\
-          )\n    temp_nb_py_script = os.path.join(temp_path, \"nb_output_as.py\")\n\
-          \n    # clone git repo\n    print (f\"Cloning Git Repo.  URL={git_url} TempRepoPath={temp_repo_path}\"\
-          )\n    from git import Repo\n    Repo.clone_from(git_url,temp_repo_path)\n\
+          )\n\n    # clone git repo\n    print (f\"Cloning Git Repo.  URL={git_url}\
+          \ TempRepoPath={temp_repo_path}\")\n    from git import Repo\n    Repo.clone_from(git_url,temp_repo_path)\n\
           \n    # build parameter list\n    primary_parameter_list = dict(onnx_path\
           \ = model.path,\n                                  output_dir = temp_nb_output_dir)\n\
           \    primary_parameter_list.update(parameters)\n    primary_parameter_list.update(env)\n\
@@ -93,8 +92,7 @@ deploymentSpec:
           \        kernel_name=\"\",\n        prepare_only=True\n    )\n\n    # convert\
           \ notebook to python file\n    import nbconvert\n    exporter = nbconvert.PythonExporter()\n\
           \    (body, resources) = exporter.from_filename(jupyter_nb_output.path)\n\
-          #    with open(temp_nb_py_script, 'w') as f:\n#        f.write(body)\n\n\
-          \    # execute notebook\n    import sys\n    sys.path.append(new_dir)\n\
+          \n    # execute notebook\n    import sys\n    sys.path.append(new_dir)\n\
           \    exec(body, {\"metrics_output\": metrics})\n\n"
         image: quay.io/modh/runtime-images:runtime-pytorch-ubi9-python-3.11-20250130
 pipelineInfo:

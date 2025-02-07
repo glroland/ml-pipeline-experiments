@@ -7,12 +7,12 @@ from kfp import compiler
 
 run_notebook_in_proc = components.load_component_from_file('../components/run-notebook-out-of-proc-component.yaml')
 
-@dsl.pipeline(name="ex2-mlflow_and_python_dsl_pipeline")
+@dsl.pipeline(name="ex2 pipeline")
 def mlflow_experiment_pipeline(git_url: str, env: dict):
     # Run MLFlow Experiment
     run_task = run_notebook_in_proc(git_url=git_url,
                                     run_from_dir="ex2-mlflow_and_python_dsl_pipeline",
-                                    notebook_name="mlflow_experiment.ipynb",
+                                    notebook_name="mlflow_parameters.ipynb",
                                     parameters = env)
     run_task.set_display_name("mlflow-experiment")
     run_task.set_caching_options(enable_caching=False)

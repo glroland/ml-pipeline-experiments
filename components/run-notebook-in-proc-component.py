@@ -1,4 +1,3 @@
-import subprocess
 import kfp
 import kfp.client
 from kfp import dsl
@@ -20,7 +19,6 @@ def run_notebook_in_proc(git_url: str,
     temp_path = "/tmp"
     temp_repo_path = os.path.join(temp_path, "repo")
     temp_nb_output_dir = os.path.join(temp_path, "nb_output")
-    temp_nb_py_script = os.path.join(temp_path, "nb_output_as.py")
 
     # clone git repo
     print (f"Cloning Git Repo.  URL={git_url} TempRepoPath={temp_repo_path}")
@@ -58,8 +56,6 @@ def run_notebook_in_proc(git_url: str,
     import nbconvert
     exporter = nbconvert.PythonExporter()
     (body, resources) = exporter.from_filename(jupyter_nb_output.path)
-#    with open(temp_nb_py_script, 'w') as f:
-#        f.write(body)
 
     # execute notebook
     import sys
