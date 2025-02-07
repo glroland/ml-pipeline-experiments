@@ -13,26 +13,30 @@
           "type": "execution_node",
           "op": "execute-notebook-node",
           "app_data": {
-            "label": "",
             "component_parameters": {
               "dependencies": [],
               "include_subdirectories": false,
               "outputs": [],
               "env_vars": [
                 {
-                  "env_var": "AWS_ACCESS_KEY_ID"
+                  "env_var": "AWS_ACCESS_KEY_ID",
+                  "value": "QYCBtRYZoJKNLinsoziN"
                 },
                 {
-                  "env_var": "AWS_SECRET_ACCESS_KEY"
+                  "env_var": "AWS_SECRET_ACCESS_KEY",
+                  "value": "zKGMlnKMSYsqhYwwuW7UnkGguxMn9GnF33iGYkfK"
                 },
                 {
-                  "env_var": "AWS_DEFAULT_REGION"
+                  "env_var": "AWS_DEFAULT_REGION",
+                  "value": "lab"
                 },
                 {
-                  "env_var": "MLFLOW_S3_ENDPOINT_URL"
+                  "env_var": "MLFLOW_S3_ENDPOINT_URL",
+                  "value": "https://eclipse.home.glroland.com:9000"
                 },
                 {
-                  "env_var": "MLFLOW_S3_IGNORE_TLS"
+                  "env_var": "MLFLOW_S3_IGNORE_TLS",
+                  "value": "true"
                 }
               ],
               "kubernetes_pod_annotations": [],
@@ -41,8 +45,9 @@
               "kubernetes_shared_mem_size": {},
               "kubernetes_tolerations": [],
               "mounted_volumes": [],
-              "filename": "mlflow_experiment.ipynb"
+              "filename": "mlflow_external_envs.ipynb"
             },
+            "label": "",
             "ui_data": {
               "label": "mlflow_external_envs.ipynb",
               "image": "/notebook/mlflow/my-workbench/static/elyra/notebook.svg",
