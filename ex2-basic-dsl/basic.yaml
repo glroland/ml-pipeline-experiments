@@ -1,0 +1,188 @@
+# PIPELINE DEFINITION
+# Name: ex2-simple-python-dsl-pipeline
+# Inputs:
+#    input_age: int
+#    input_name: str
+components:
+  comp-step-1:
+    executorLabel: exec-step-1
+    inputDefinitions:
+      parameters:
+        input_age:
+          parameterType: NUMBER_INTEGER
+        input_name:
+          parameterType: STRING
+    outputDefinitions:
+      parameters:
+        Output:
+          parameterType: STRING
+  comp-step-2:
+    executorLabel: exec-step-2
+    inputDefinitions:
+      parameters:
+        age_category:
+          parameterType: STRING
+        input_name:
+          parameterType: STRING
+    outputDefinitions:
+      parameters:
+        Output:
+          parameterType: STRING
+  comp-step-3:
+    executorLabel: exec-step-3
+    inputDefinitions:
+      parameters:
+        greeting:
+          parameterType: STRING
+deploymentSpec:
+  executors:
+    exec-step-1:
+      container:
+        args:
+        - --executor_input
+        - '{{$}}'
+        - --function_to_execute
+        - step_1
+        command:
+        - sh
+        - -c
+        - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip ||\
+          \ python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1\
+          \ python3 -m pip install --quiet --no-warn-script-location 'kfp==2.12.2'\
+          \ '--no-deps' 'typing-extensions>=3.7.4,<5; python_version<\"3.9\"' && \"\
+          $0\" \"$@\"\n"
+        - sh
+        - -ec
+        - 'program_path=$(mktemp -d)
+
+
+          printf "%s" "$0" > "$program_path/ephemeral_component.py"
+
+          _KFP_RUNTIME=true python3 -m kfp.dsl.executor_main                         --component_module_path                         "$program_path/ephemeral_component.py"                         "$@"
+
+          '
+        - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
+          \ *\n\ndef step_1(input_name: str, input_age: int) -> str:\n    import os\n\
+          \    print(\"Step #1\")\n    print(\"Name:\", input_name)\n    print(\"\
+          Age:\", input_age)\n    print(os.environ)\n\n    if input_age < 18:\n  \
+          \      return \"MINOR\"\n    else:\n        return \"ADULT\"\n\n"
+        image: python:3.9
+    exec-step-2:
+      container:
+        args:
+        - --executor_input
+        - '{{$}}'
+        - --function_to_execute
+        - step_2
+        command:
+        - sh
+        - -c
+        - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip ||\
+          \ python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1\
+          \ python3 -m pip install --quiet --no-warn-script-location 'kfp==2.12.2'\
+          \ '--no-deps' 'typing-extensions>=3.7.4,<5; python_version<\"3.9\"' && \"\
+          $0\" \"$@\"\n"
+        - sh
+        - -ec
+        - 'program_path=$(mktemp -d)
+
+
+          printf "%s" "$0" > "$program_path/ephemeral_component.py"
+
+          _KFP_RUNTIME=true python3 -m kfp.dsl.executor_main                         --component_module_path                         "$program_path/ephemeral_component.py"                         "$@"
+
+          '
+        - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
+          \ *\n\ndef step_2(input_name: str, age_category: str) -> str:\n    import\
+          \ os\n    print(\"Step #2\")\n    print(\"Name:\", input_name)\n    print(\"\
+          Age Category:\", age_category)\n    greeting = f\"Thank you for representing\
+          \ {age_category}s, {input_name}!\"\n    print(greeting)\n    print(os.environ)\n\
+          \    return greeting\n\n"
+        image: python:3.9
+    exec-step-3:
+      container:
+        args:
+        - --executor_input
+        - '{{$}}'
+        - --function_to_execute
+        - step_3
+        command:
+        - sh
+        - -c
+        - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip ||\
+          \ python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1\
+          \ python3 -m pip install --quiet --no-warn-script-location 'kfp==2.12.2'\
+          \ '--no-deps' 'typing-extensions>=3.7.4,<5; python_version<\"3.9\"' && \"\
+          $0\" \"$@\"\n"
+        - sh
+        - -ec
+        - 'program_path=$(mktemp -d)
+
+
+          printf "%s" "$0" > "$program_path/ephemeral_component.py"
+
+          _KFP_RUNTIME=true python3 -m kfp.dsl.executor_main                         --component_module_path                         "$program_path/ephemeral_component.py"                         "$@"
+
+          '
+        - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
+          \ *\n\ndef step_3(greeting: str):\n    import os\n    print(\"Step #3\"\
+          )\n    print(\"Greeting:\", greeting)\n    print(os.environ)\n\n"
+        image: python:3.9
+pipelineInfo:
+  name: ex2-simple-python-dsl-pipeline
+root:
+  dag:
+    tasks:
+      step-1:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-step-1
+        inputs:
+          parameters:
+            input_age:
+              componentInputParameter: input_age
+            input_name:
+              componentInputParameter: input_name
+        taskInfo:
+          name: step-1
+      step-2:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-step-2
+        dependentTasks:
+        - step-1
+        inputs:
+          parameters:
+            age_category:
+              taskOutputParameter:
+                outputParameterKey: Output
+                producerTask: step-1
+            input_name:
+              componentInputParameter: input_name
+        taskInfo:
+          name: step-2
+      step-3:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-step-3
+        dependentTasks:
+        - step-2
+        inputs:
+          parameters:
+            greeting:
+              taskOutputParameter:
+                outputParameterKey: Output
+                producerTask: step-2
+        taskInfo:
+          name: step-3
+  inputDefinitions:
+    parameters:
+      input_age:
+        parameterType: NUMBER_INTEGER
+      input_name:
+        parameterType: STRING
+schemaVersion: 2.1.0
+sdkVersion: kfp-2.12.2

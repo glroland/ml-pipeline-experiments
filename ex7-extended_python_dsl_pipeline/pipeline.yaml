@@ -1,0 +1,295 @@
+# PIPELINE DEFINITION
+# Name: ex3-pipeline
+# Inputs:
+#    env: dict
+#    git_url: str
+components:
+  comp-ex2-pipeline:
+    dag:
+      tasks:
+        run-notebook-out-of-proc:
+          cachingOptions: {}
+          componentRef:
+            name: comp-run-notebook-out-of-proc
+          inputs:
+            parameters:
+              git_url:
+                componentInputParameter: git_url
+              notebook_name:
+                runtimeValue:
+                  constant: mlflow_parameters.ipynb
+              parameters:
+                componentInputParameter: env
+              run_from_dir:
+                runtimeValue:
+                  constant: ex2-mlflow_and_python_dsl_pipeline
+          taskInfo:
+            name: mlflow-experiment
+    inputDefinitions:
+      parameters:
+        env:
+          parameterType: STRUCT
+        git_url:
+          parameterType: STRING
+  comp-register-models:
+    executorLabel: exec-register-models
+  comp-run-a-file:
+    executorLabel: exec-run-a-file
+  comp-run-notebook-out-of-proc:
+    executorLabel: exec-run-notebook-out-of-proc
+    inputDefinitions:
+      parameters:
+        git_url:
+          parameterType: STRING
+        notebook_name:
+          parameterType: STRING
+        parameters:
+          parameterType: STRUCT
+        run_from_dir:
+          parameterType: STRING
+    outputDefinitions:
+      artifacts:
+        jupyter_nb_output:
+          artifactType:
+            schemaTitle: system.Artifact
+            schemaVersion: 0.0.1
+        model:
+          artifactType:
+            schemaTitle: system.Model
+            schemaVersion: 0.0.1
+  comp-store-assets:
+    executorLabel: exec-store-assets
+  comp-visual-pipeline:
+    dag:
+      tasks:
+        run-a-file:
+          cachingOptions:
+            enableCache: true
+          componentRef:
+            name: comp-run-a-file
+          taskInfo:
+            name: mlflow_external_envs
+deploymentSpec:
+  executors:
+    exec-register-models:
+      container:
+        args:
+        - --executor_input
+        - '{{$}}'
+        - --function_to_execute
+        - register_models
+        command:
+        - sh
+        - -c
+        - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip ||\
+          \ python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1\
+          \ python3 -m pip install --quiet --no-warn-script-location 'kfp==2.11.0'\
+          \ '--no-deps' 'typing-extensions>=3.7.4,<5; python_version<\"3.9\"' && \"\
+          $0\" \"$@\"\n"
+        - sh
+        - -ec
+        - 'program_path=$(mktemp -d)
+
+
+          printf "%s" "$0" > "$program_path/ephemeral_component.py"
+
+          _KFP_RUNTIME=true python3 -m kfp.dsl.executor_main                         --component_module_path                         "$program_path/ephemeral_component.py"                         "$@"
+
+          '
+        - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
+          \ *\n\ndef register_models():\n    pass\n\n"
+        image: python:3.9
+    exec-run-a-file:
+      container:
+        args:
+        - 'sh -c "mkdir -p ./jupyter-work-dir && cd ./jupyter-work-dir"
+
+          sh -c "[[ -e ''/opt/app-root/bin/utils/bootstrapper.py'' ]] && (echo ''bootstrapper.py
+          file already exists''; cp ''/opt/app-root/bin/utils/bootstrapper.py'' .)
+          || (echo ''Downloading https://raw.githubusercontent.com/opendatahub-io/elyra/v4.2.0/elyra/kfp/bootstrapper.py'';
+          curl --fail -H ''Cache-Control: no-cache'' -L ''https://raw.githubusercontent.com/opendatahub-io/elyra/v4.2.0/elyra/kfp/bootstrapper.py''
+          --output bootstrapper.py)"
+
+          sh -c "[[ -e ''/opt/app-root/bin/utils/requirements-elyra.txt'' ]] && (echo
+          ''requirements-elyra.txt file already exists''; cp ''/opt/app-root/bin/utils/requirements-elyra.txt''
+          .) || (echo ''Downloading https://raw.githubusercontent.com/opendatahub-io/elyra/v4.2.0/etc/generic/requirements-elyra.txt'';
+          curl --fail -H ''Cache-Control: no-cache'' -L ''https://raw.githubusercontent.com/opendatahub-io/elyra/v4.2.0/etc/generic/requirements-elyra.txt''
+          --output requirements-elyra.txt)"
+
+          sh -c "python3 -m pip install  packaging && python3 -m pip freeze > requirements-current.txt
+          && python3 bootstrapper.py --pipeline-name ''visual_pipeline'' --cos-endpoint
+          ''https://eclipse.home.glroland.com:9000'' --cos-bucket ''mlflow'' --cos-directory
+          ''visual_pipeline-0207195426'' --cos-dependencies-archive ''mlflow_external_envs-7090b838-23f8-463b-950d-a53b71f9f038.tar.gz''
+          --file ''ml-pipeline-experiments/ex1-mlflow_and_visual_pipeline/mlflow_external_envs.ipynb''
+          "
+
+          '
+        command:
+        - sh
+        - -c
+        env:
+        - name: AWS_DEFAULT_REGION
+          value: lab
+        - name: MLFLOW_S3_ENDPOINT_URL
+          value: https://eclipse.home.glroland.com:9000
+        - name: MLFLOW_S3_IGNORE_TLS
+          value: 'true'
+        - name: ELYRA_RUNTIME_ENV
+          value: kfp
+        - name: ELYRA_ENABLE_PIPELINE_INFO
+          value: 'True'
+        - name: ELYRA_WRITABLE_CONTAINER_DIR
+          value: /tmp
+        - name: ELYRA_RUN_NAME
+          value: '{{workflow.uid}}'
+        image: quay.io/modh/runtime-images@sha256:a6e87550d7f932732b8e52c309d356fb76ae0ba0fd0b8566de0ba4ff49c2db84
+    exec-run-notebook-out-of-proc:
+      container:
+        args:
+        - --executor_input
+        - '{{$}}'
+        - --function_to_execute
+        - run_notebook_out_of_proc
+        command:
+        - sh
+        - -c
+        - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip ||\
+          \ python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1\
+          \ python3 -m pip install --quiet --no-warn-script-location 'kfp==2.11.0'\
+          \ '--no-deps' 'typing-extensions>=3.7.4,<5; python_version<\"3.9\"'  &&\
+          \  python3 -m pip install --quiet --no-warn-script-location 'papermill'\
+          \ 'GitPython' 'ipykernel' 'jupyter' && \"$0\" \"$@\"\n"
+        - sh
+        - -ec
+        - 'program_path=$(mktemp -d)
+
+
+          printf "%s" "$0" > "$program_path/ephemeral_component.py"
+
+          _KFP_RUNTIME=true python3 -m kfp.dsl.executor_main                         --component_module_path                         "$program_path/ephemeral_component.py"                         "$@"
+
+          '
+        - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
+          \ *\n\ndef run_notebook_out_of_proc(git_url: str,\n                    \
+          \         run_from_dir: str,\n                             notebook_name:\
+          \ str,\n                             parameters: dict,\n               \
+          \              jupyter_nb_output: Output[Artifact],\n                  \
+          \           model: Output[Model]):\n    # setup output directories\n   \
+          \ import os\n    temp_path = \"/tmp\"\n    temp_repo_path = os.path.join(temp_path,\
+          \ \"repo\")\n    temp_nb_output_dir = os.path.join(temp_path, \"nb_output\"\
+          )\n\n    # clone git repo\n    print (f\"Cloning Git Repo.  URL={git_url}\
+          \ TempRepoPath={temp_repo_path}\")\n    from git import Repo\n    Repo.clone_from(git_url,temp_repo_path)\n\
+          \n    # build parameter list\n    primary_parameter_list = dict(onnx_path\
+          \ = model.path,\n                                  output_dir = temp_nb_output_dir)\n\
+          \    primary_parameter_list.update(parameters)\n    print (f\"Parameters:\
+          \ {primary_parameter_list}\")\n\n    # change run directory\n    new_dir\
+          \ = os.path.join(temp_repo_path, run_from_dir)\n    print (f\"Changing directory\
+          \ to: {new_dir}\")\n    os.chdir(new_dir)\n\n    # run notebook\n    print\
+          \ (f\"Running notebook.  Filename={notebook_name}\")\n    import papermill\
+          \ as pm\n    pm.execute_notebook(\n        notebook_name,\n        jupyter_nb_output.path,\n\
+          \        parameters=primary_parameter_list,\n        kernel_name=\"\"\n\
+          \    )\n\n"
+        image: quay.io/modh/runtime-images:runtime-pytorch-ubi9-python-3.11-20250130
+    exec-store-assets:
+      container:
+        args:
+        - --executor_input
+        - '{{$}}'
+        - --function_to_execute
+        - store_assets
+        command:
+        - sh
+        - -c
+        - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip ||\
+          \ python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1\
+          \ python3 -m pip install --quiet --no-warn-script-location 'kfp==2.11.0'\
+          \ '--no-deps' 'typing-extensions>=3.7.4,<5; python_version<\"3.9\"' && \"\
+          $0\" \"$@\"\n"
+        - sh
+        - -ec
+        - 'program_path=$(mktemp -d)
+
+
+          printf "%s" "$0" > "$program_path/ephemeral_component.py"
+
+          _KFP_RUNTIME=true python3 -m kfp.dsl.executor_main                         --component_module_path                         "$program_path/ephemeral_component.py"                         "$@"
+
+          '
+        - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
+          \ *\n\ndef store_assets():\n    pass\n\n"
+        image: python:3.9
+pipelineInfo:
+  name: ex3-pipeline
+root:
+  dag:
+    tasks:
+      ex2-pipeline:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-ex2-pipeline
+        inputs:
+          parameters:
+            env:
+              componentInputParameter: env
+            git_url:
+              componentInputParameter: git_url
+        taskInfo:
+          name: ex2-pipeline
+      register-models:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-register-models
+        dependentTasks:
+        - store-assets
+        taskInfo:
+          name: register-models
+      store-assets:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-store-assets
+        dependentTasks:
+        - ex2-pipeline
+        - visual-pipeline
+        taskInfo:
+          name: store-assets
+      visual-pipeline:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-visual-pipeline
+        taskInfo:
+          name: visual-pipeline
+  inputDefinitions:
+    parameters:
+      env:
+        parameterType: STRUCT
+      git_url:
+        parameterType: STRING
+schemaVersion: 2.1.0
+sdkVersion: kfp-2.11.0
+---
+platforms:
+  kubernetes:
+    deploymentSpec:
+      executors:
+        exec-run-a-file:
+          podMetadata:
+            annotations:
+              elyra/node-file-name: ml-pipeline-experiments/ex1-mlflow_and_visual_pipeline/mlflow_external_envs.ipynb
+              elyra/pipeline-source: visual_pipeline.pipeline
+            labels:
+              elyra/experiment-name: ''
+              elyra/node-name: mlflow_external_envs
+              elyra/node-type: notebook-script
+              elyra/pipeline-name: visual_pipeline
+              elyra/pipeline-version: ''
+          secretAsEnv:
+          - keyToEnv:
+            - envVar: AWS_ACCESS_KEY_ID
+              secretKey: AWS_ACCESS_KEY_ID
+            - envVar: AWS_SECRET_ACCESS_KEY
+              secretKey: AWS_SECRET_ACCESS_KEY
+            secretName: dashboard-dspa-secret
