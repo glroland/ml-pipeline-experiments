@@ -1,0 +1,219 @@
+# PIPELINE DEFINITION
+# Name: ex1-basic-visual
+components:
+  comp-run-a-file:
+    executorLabel: exec-run-a-file
+  comp-run-a-file-2:
+    executorLabel: exec-run-a-file-2
+  comp-run-a-file-3:
+    executorLabel: exec-run-a-file-3
+deploymentSpec:
+  executors:
+    exec-run-a-file:
+      container:
+        args:
+        - 'sh -c "mkdir -p ./jupyter-work-dir && cd ./jupyter-work-dir"
+
+          sh -c "[[ -e ''/opt/app-root/bin/utils/bootstrapper.py'' ]] && (echo ''bootstrapper.py
+          file already exists''; cp ''/opt/app-root/bin/utils/bootstrapper.py'' .)
+          || (echo ''Downloading https://raw.githubusercontent.com/opendatahub-io/elyra/v4.2.1/elyra/kfp/bootstrapper.py'';
+          curl --fail -H ''Cache-Control: no-cache'' -L ''https://raw.githubusercontent.com/opendatahub-io/elyra/v4.2.1/elyra/kfp/bootstrapper.py''
+          --output bootstrapper.py)"
+
+          sh -c "[[ -e ''/opt/app-root/bin/utils/requirements-elyra.txt'' ]] && (echo
+          ''requirements-elyra.txt file already exists''; cp ''/opt/app-root/bin/utils/requirements-elyra.txt''
+          .) || (echo ''Downloading https://raw.githubusercontent.com/opendatahub-io/elyra/v4.2.1/etc/generic/requirements-elyra.txt'';
+          curl --fail -H ''Cache-Control: no-cache'' -L ''https://raw.githubusercontent.com/opendatahub-io/elyra/v4.2.1/etc/generic/requirements-elyra.txt''
+          --output requirements-elyra.txt)"
+
+          sh -c "python3 -m pip install  packaging && python3 -m pip freeze > requirements-current.txt
+          && python3 bootstrapper.py --pipeline-name ''ex1-basic-visual'' --cos-endpoint
+          ''https://eclipse.home.glroland.com:9000'' --cos-bucket ''testing'' --cos-directory
+          ''ex1-basic-visual-0805003553'' --cos-dependencies-archive ''step_1-f3f481b1-99d4-4fd6-9cdc-6d20e93c8da9.tar.gz''
+          --file ''ml-pipeline-experiments/ex1-basic-visual/step_1.ipynb'' "
+
+          '
+        command:
+        - sh
+        - -c
+        env:
+        - name: ELYRA_RUNTIME_ENV
+          value: kfp
+        - name: ELYRA_ENABLE_PIPELINE_INFO
+          value: 'True'
+        - name: ELYRA_WRITABLE_CONTAINER_DIR
+          value: /tmp
+        - name: ELYRA_RUN_NAME
+          value: '{{workflow.uid}}'
+        image: quay.io/modh/odh-pipeline-runtime-datascience-cpu-py311-ubi9@sha256:58b260c5828299014802bf3fcd0004a97a949fdbfcee82057190e94a2ef16562
+    exec-run-a-file-2:
+      container:
+        args:
+        - 'sh -c "mkdir -p ./jupyter-work-dir && cd ./jupyter-work-dir"
+
+          sh -c "[[ -e ''/opt/app-root/bin/utils/bootstrapper.py'' ]] && (echo ''bootstrapper.py
+          file already exists''; cp ''/opt/app-root/bin/utils/bootstrapper.py'' .)
+          || (echo ''Downloading https://raw.githubusercontent.com/opendatahub-io/elyra/v4.2.1/elyra/kfp/bootstrapper.py'';
+          curl --fail -H ''Cache-Control: no-cache'' -L ''https://raw.githubusercontent.com/opendatahub-io/elyra/v4.2.1/elyra/kfp/bootstrapper.py''
+          --output bootstrapper.py)"
+
+          sh -c "[[ -e ''/opt/app-root/bin/utils/requirements-elyra.txt'' ]] && (echo
+          ''requirements-elyra.txt file already exists''; cp ''/opt/app-root/bin/utils/requirements-elyra.txt''
+          .) || (echo ''Downloading https://raw.githubusercontent.com/opendatahub-io/elyra/v4.2.1/etc/generic/requirements-elyra.txt'';
+          curl --fail -H ''Cache-Control: no-cache'' -L ''https://raw.githubusercontent.com/opendatahub-io/elyra/v4.2.1/etc/generic/requirements-elyra.txt''
+          --output requirements-elyra.txt)"
+
+          sh -c "python3 -m pip install  packaging && python3 -m pip freeze > requirements-current.txt
+          && python3 bootstrapper.py --pipeline-name ''ex1-basic-visual'' --cos-endpoint
+          ''https://eclipse.home.glroland.com:9000'' --cos-bucket ''testing'' --cos-directory
+          ''ex1-basic-visual-0805003553'' --cos-dependencies-archive ''step_2-20246614-fd2b-4d97-bb99-c54cd994a61b.tar.gz''
+          --file ''ml-pipeline-experiments/ex1-basic-visual/step_2.ipynb'' "
+
+          '
+        command:
+        - sh
+        - -c
+        env:
+        - name: ELYRA_RUNTIME_ENV
+          value: kfp
+        - name: ELYRA_ENABLE_PIPELINE_INFO
+          value: 'True'
+        - name: ELYRA_WRITABLE_CONTAINER_DIR
+          value: /tmp
+        - name: ELYRA_RUN_NAME
+          value: '{{workflow.uid}}'
+        image: quay.io/modh/odh-pipeline-runtime-datascience-cpu-py311-ubi9@sha256:58b260c5828299014802bf3fcd0004a97a949fdbfcee82057190e94a2ef16562
+    exec-run-a-file-3:
+      container:
+        args:
+        - 'sh -c "mkdir -p ./jupyter-work-dir && cd ./jupyter-work-dir"
+
+          sh -c "[[ -e ''/opt/app-root/bin/utils/bootstrapper.py'' ]] && (echo ''bootstrapper.py
+          file already exists''; cp ''/opt/app-root/bin/utils/bootstrapper.py'' .)
+          || (echo ''Downloading https://raw.githubusercontent.com/opendatahub-io/elyra/v4.2.1/elyra/kfp/bootstrapper.py'';
+          curl --fail -H ''Cache-Control: no-cache'' -L ''https://raw.githubusercontent.com/opendatahub-io/elyra/v4.2.1/elyra/kfp/bootstrapper.py''
+          --output bootstrapper.py)"
+
+          sh -c "[[ -e ''/opt/app-root/bin/utils/requirements-elyra.txt'' ]] && (echo
+          ''requirements-elyra.txt file already exists''; cp ''/opt/app-root/bin/utils/requirements-elyra.txt''
+          .) || (echo ''Downloading https://raw.githubusercontent.com/opendatahub-io/elyra/v4.2.1/etc/generic/requirements-elyra.txt'';
+          curl --fail -H ''Cache-Control: no-cache'' -L ''https://raw.githubusercontent.com/opendatahub-io/elyra/v4.2.1/etc/generic/requirements-elyra.txt''
+          --output requirements-elyra.txt)"
+
+          sh -c "python3 -m pip install  packaging && python3 -m pip freeze > requirements-current.txt
+          && python3 bootstrapper.py --pipeline-name ''ex1-basic-visual'' --cos-endpoint
+          ''https://eclipse.home.glroland.com:9000'' --cos-bucket ''testing'' --cos-directory
+          ''ex1-basic-visual-0805003553'' --cos-dependencies-archive ''step_3-36428fab-3846-4e90-958c-dd2a18f681cb.tar.gz''
+          --file ''ml-pipeline-experiments/ex1-basic-visual/step_3.ipynb'' "
+
+          '
+        command:
+        - sh
+        - -c
+        env:
+        - name: ELYRA_RUNTIME_ENV
+          value: kfp
+        - name: ELYRA_ENABLE_PIPELINE_INFO
+          value: 'True'
+        - name: ELYRA_WRITABLE_CONTAINER_DIR
+          value: /tmp
+        - name: ELYRA_RUN_NAME
+          value: '{{workflow.uid}}'
+        image: quay.io/modh/odh-pipeline-runtime-datascience-cpu-py311-ubi9@sha256:58b260c5828299014802bf3fcd0004a97a949fdbfcee82057190e94a2ef16562
+pipelineInfo:
+  name: ex1-basic-visual
+root:
+  dag:
+    tasks:
+      run-a-file:
+        cachingOptions: {}
+        componentRef:
+          name: comp-run-a-file
+        taskInfo:
+          name: step_1
+      run-a-file-2:
+        cachingOptions: {}
+        componentRef:
+          name: comp-run-a-file-2
+        dependentTasks:
+        - run-a-file
+        taskInfo:
+          name: step_2
+      run-a-file-3:
+        cachingOptions: {}
+        componentRef:
+          name: comp-run-a-file-3
+        dependentTasks:
+        - run-a-file-2
+        taskInfo:
+          name: step_3
+schemaVersion: 2.1.0
+sdkVersion: kfp-2.12.2
+---
+platforms:
+  kubernetes:
+    deploymentSpec:
+      executors:
+        exec-run-a-file:
+          podMetadata:
+            annotations:
+              elyra/node-file-name: ml-pipeline-experiments/ex1-basic-visual/step_1.ipynb
+              elyra/pipeline-source: ex1-basic-visual.pipeline
+            labels:
+              elyra/experiment-name: ''
+              elyra/node-name: step_1
+              elyra/node-type: notebook-script
+              elyra/pipeline-name: ex1-basic-visual
+              elyra/pipeline-version: ''
+          secretAsEnv:
+          - keyToEnv:
+            - envVar: AWS_ACCESS_KEY_ID
+              secretKey: AWS_ACCESS_KEY_ID
+            - envVar: AWS_SECRET_ACCESS_KEY
+              secretKey: AWS_SECRET_ACCESS_KEY
+            secretName: dashboard-dspa-secret
+            secretNameParameter:
+              runtimeValue:
+                constant: dashboard-dspa-secret
+        exec-run-a-file-2:
+          podMetadata:
+            annotations:
+              elyra/node-file-name: ml-pipeline-experiments/ex1-basic-visual/step_2.ipynb
+              elyra/pipeline-source: ex1-basic-visual.pipeline
+            labels:
+              elyra/experiment-name: ''
+              elyra/node-name: step_2
+              elyra/node-type: notebook-script
+              elyra/pipeline-name: ex1-basic-visual
+              elyra/pipeline-version: ''
+          secretAsEnv:
+          - keyToEnv:
+            - envVar: AWS_ACCESS_KEY_ID
+              secretKey: AWS_ACCESS_KEY_ID
+            - envVar: AWS_SECRET_ACCESS_KEY
+              secretKey: AWS_SECRET_ACCESS_KEY
+            secretName: dashboard-dspa-secret
+            secretNameParameter:
+              runtimeValue:
+                constant: dashboard-dspa-secret
+        exec-run-a-file-3:
+          podMetadata:
+            annotations:
+              elyra/node-file-name: ml-pipeline-experiments/ex1-basic-visual/step_3.ipynb
+              elyra/pipeline-source: ex1-basic-visual.pipeline
+            labels:
+              elyra/experiment-name: ''
+              elyra/node-name: step_3
+              elyra/node-type: notebook-script
+              elyra/pipeline-name: ex1-basic-visual
+              elyra/pipeline-version: ''
+          secretAsEnv:
+          - keyToEnv:
+            - envVar: AWS_ACCESS_KEY_ID
+              secretKey: AWS_ACCESS_KEY_ID
+            - envVar: AWS_SECRET_ACCESS_KEY
+              secretKey: AWS_SECRET_ACCESS_KEY
+            secretName: dashboard-dspa-secret
+            secretNameParameter:
+              runtimeValue:
+                constant: dashboard-dspa-secret
