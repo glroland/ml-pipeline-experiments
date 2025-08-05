@@ -5,6 +5,9 @@ from kfp import dsl
 from kfp import compiler
 
 
+PIPELINE_NAME = "ex2-basic-dsl basic"
+
+
 @dsl.component
 def step_1(input_name: str, input_age: int) -> str:
     import os
@@ -39,7 +42,7 @@ def step_3(greeting: str):
     print(os.environ)
 
 
-@dsl.pipeline(name="ex2 simple python dsl pipeline")
+@dsl.pipeline(name=PIPELINE_NAME)
 def simple_dsl_pipeline(input_name: str, input_age: int):
     # Step 1
     step_1_task = step_1(input_name=input_name, input_age=input_age)
@@ -62,7 +65,7 @@ kfp_client = kfp.Client(host="https://ds-pipeline-dspa-pipeline-sandbox.apps.ocp
 print("Running Pipeline")
 kfp_client.create_run_from_pipeline_func(
     simple_dsl_pipeline,
-    experiment_name="ex2 basic pipeline experiment",
+    experiment_name=PIPELINE_NAME,
     arguments={
         "input_name": "Jimmy John",
         "input_age": 28

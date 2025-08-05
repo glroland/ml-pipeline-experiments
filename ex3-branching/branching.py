@@ -5,6 +5,9 @@ from kfp import dsl
 from kfp import compiler
 
 
+PIPELINE_NAME = "ex3-branching"
+
+
 @dsl.component
 def is_number(input_str: str) -> bool:
     print("Is Number Step")
@@ -30,7 +33,7 @@ def print_input(input_str: str):
     print("Input:", input_str)
 
 
-@dsl.pipeline(name="ex3 branching pipeline")
+@dsl.pipeline(name=PIPELINE_NAME)
 def branching_pipeline(input_str: str):
     # Step 1
     is_number_task = is_number(input_str=input_str)
@@ -60,7 +63,7 @@ kfp_client = kfp.Client(host="https://ds-pipeline-dspa-pipeline-sandbox.apps.ocp
 print("Running Pipeline")
 kfp_client.create_run_from_pipeline_func(
     branching_pipeline,
-    experiment_name="ex3 branching pipeline experiment",
+    experiment_name=PIPELINE_NAME,
     arguments={
         "input_str": "Not a Number"
     }
@@ -70,7 +73,7 @@ kfp_client.create_run_from_pipeline_func(
 print("Running Pipeline")
 kfp_client.create_run_from_pipeline_func(
     branching_pipeline,
-    experiment_name="ex3 branching pipeline experiment",
+    experiment_name=PIPELINE_NAME,
     arguments={
         "input_str": "10"
     }
@@ -80,7 +83,7 @@ kfp_client.create_run_from_pipeline_func(
 print("Running Pipeline")
 kfp_client.create_run_from_pipeline_func(
     branching_pipeline,
-    experiment_name="ex3 branching pipeline experiment",
+    experiment_name=PIPELINE_NAME,
     arguments={
         "input_str": "103"
     }
@@ -88,4 +91,4 @@ kfp_client.create_run_from_pipeline_func(
 
 # Compile Pipeline
 print("Compiling Pipeline")
-compiler.Compiler().compile(branching_pipeline, 'basic.yaml')
+compiler.Compiler().compile(branching_pipeline, 'branching.yaml')

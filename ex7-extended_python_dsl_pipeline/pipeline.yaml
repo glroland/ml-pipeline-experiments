@@ -1,10 +1,20 @@
 # PIPELINE DEFINITION
-# Name: ex3-pipeline
+# Name: ex7-extended-python-dsl-pipeline
 # Inputs:
 #    env: dict
 #    git_url: str
 components:
-  comp-ex2-pipeline:
+  comp-ex5-mlflow-and-visual-pipeline:
+    dag:
+      tasks:
+        run-a-file:
+          cachingOptions:
+            enableCache: true
+          componentRef:
+            name: comp-run-a-file
+          taskInfo:
+            name: mlflow_external_envs
+  comp-ex6-mlflow-and-python-dsl-pipeline:
     dag:
       tasks:
         run-notebook-out-of-proc:
@@ -22,7 +32,7 @@ components:
                 componentInputParameter: env
               run_from_dir:
                 runtimeValue:
-                  constant: ex2-mlflow_and_python_dsl_pipeline
+                  constant: ex6-mlflow_and_python_dsl_pipeline
           taskInfo:
             name: mlflow-experiment
     inputDefinitions:
@@ -59,16 +69,6 @@ components:
             schemaVersion: 0.0.1
   comp-store-assets:
     executorLabel: exec-store-assets
-  comp-visual-pipeline:
-    dag:
-      tasks:
-        run-a-file:
-          cachingOptions:
-            enableCache: true
-          componentRef:
-            name: comp-run-a-file
-          taskInfo:
-            name: mlflow_external_envs
 deploymentSpec:
   executors:
     exec-register-models:
@@ -83,7 +83,7 @@ deploymentSpec:
         - -c
         - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip ||\
           \ python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1\
-          \ python3 -m pip install --quiet --no-warn-script-location 'kfp==2.11.0'\
+          \ python3 -m pip install --quiet --no-warn-script-location 'kfp==2.12.2'\
           \ '--no-deps' 'typing-extensions>=3.7.4,<5; python_version<\"3.9\"' && \"\
           $0\" \"$@\"\n"
         - sh
@@ -106,21 +106,22 @@ deploymentSpec:
 
           sh -c "[[ -e ''/opt/app-root/bin/utils/bootstrapper.py'' ]] && (echo ''bootstrapper.py
           file already exists''; cp ''/opt/app-root/bin/utils/bootstrapper.py'' .)
-          || (echo ''Downloading https://raw.githubusercontent.com/opendatahub-io/elyra/v4.2.0/elyra/kfp/bootstrapper.py'';
-          curl --fail -H ''Cache-Control: no-cache'' -L ''https://raw.githubusercontent.com/opendatahub-io/elyra/v4.2.0/elyra/kfp/bootstrapper.py''
+          || (echo ''Downloading https://raw.githubusercontent.com/opendatahub-io/elyra/v4.2.1/elyra/kfp/bootstrapper.py'';
+          curl --fail -H ''Cache-Control: no-cache'' -L ''https://raw.githubusercontent.com/opendatahub-io/elyra/v4.2.1/elyra/kfp/bootstrapper.py''
           --output bootstrapper.py)"
 
           sh -c "[[ -e ''/opt/app-root/bin/utils/requirements-elyra.txt'' ]] && (echo
           ''requirements-elyra.txt file already exists''; cp ''/opt/app-root/bin/utils/requirements-elyra.txt''
-          .) || (echo ''Downloading https://raw.githubusercontent.com/opendatahub-io/elyra/v4.2.0/etc/generic/requirements-elyra.txt'';
-          curl --fail -H ''Cache-Control: no-cache'' -L ''https://raw.githubusercontent.com/opendatahub-io/elyra/v4.2.0/etc/generic/requirements-elyra.txt''
+          .) || (echo ''Downloading https://raw.githubusercontent.com/opendatahub-io/elyra/v4.2.1/etc/generic/requirements-elyra.txt'';
+          curl --fail -H ''Cache-Control: no-cache'' -L ''https://raw.githubusercontent.com/opendatahub-io/elyra/v4.2.1/etc/generic/requirements-elyra.txt''
           --output requirements-elyra.txt)"
 
           sh -c "python3 -m pip install  packaging && python3 -m pip freeze > requirements-current.txt
-          && python3 bootstrapper.py --pipeline-name ''visual_pipeline'' --cos-endpoint
-          ''https://eclipse.home.glroland.com:9000'' --cos-bucket ''mlflow'' --cos-directory
-          ''visual_pipeline-0207195426'' --cos-dependencies-archive ''mlflow_external_envs-7090b838-23f8-463b-950d-a53b71f9f038.tar.gz''
-          --file ''ml-pipeline-experiments/ex1-mlflow_and_visual_pipeline/mlflow_external_envs.ipynb''
+          && python3 bootstrapper.py --pipeline-name ''ex5-mlflow_and_visual_pipeline''
+          --cos-endpoint ''https://eclipse.home.glroland.com:9000'' --cos-bucket ''testing''
+          --cos-directory ''ex5-mlflow_and_visual_pipeline-0805002710'' --cos-dependencies-archive
+          ''mlflow_external_envs-7090b838-23f8-463b-950d-a53b71f9f038.tar.gz'' --file
+          ''ml-pipeline-experiments/ex5-mlflow_and_visual_pipeline/mlflow_external_envs.ipynb''
           "
 
           '
@@ -202,7 +203,7 @@ deploymentSpec:
         - -c
         - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip ||\
           \ python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1\
-          \ python3 -m pip install --quiet --no-warn-script-location 'kfp==2.11.0'\
+          \ python3 -m pip install --quiet --no-warn-script-location 'kfp==2.12.2'\
           \ '--no-deps' 'typing-extensions>=3.7.4,<5; python_version<\"3.9\"' && \"\
           $0\" \"$@\"\n"
         - sh
@@ -219,15 +220,22 @@ deploymentSpec:
           \ *\n\ndef store_assets():\n    pass\n\n"
         image: python:3.9
 pipelineInfo:
-  name: ex3-pipeline
+  name: ex7-extended-python-dsl-pipeline
 root:
   dag:
     tasks:
-      ex2-pipeline:
+      ex5-mlflow-and-visual-pipeline:
         cachingOptions:
           enableCache: true
         componentRef:
-          name: comp-ex2-pipeline
+          name: comp-ex5-mlflow-and-visual-pipeline
+        taskInfo:
+          name: ex5-mlflow-and-visual-pipeline
+      ex6-mlflow-and-python-dsl-pipeline:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-ex6-mlflow-and-python-dsl-pipeline
         inputs:
           parameters:
             env:
@@ -235,7 +243,7 @@ root:
             git_url:
               componentInputParameter: git_url
         taskInfo:
-          name: ex2-pipeline
+          name: ex6-mlflow-and-python-dsl-pipeline
       register-models:
         cachingOptions:
           enableCache: true
@@ -251,17 +259,10 @@ root:
         componentRef:
           name: comp-store-assets
         dependentTasks:
-        - ex2-pipeline
-        - visual-pipeline
+        - ex5-mlflow-and-visual-pipeline
+        - ex6-mlflow-and-python-dsl-pipeline
         taskInfo:
           name: store-assets
-      visual-pipeline:
-        cachingOptions:
-          enableCache: true
-        componentRef:
-          name: comp-visual-pipeline
-        taskInfo:
-          name: visual-pipeline
   inputDefinitions:
     parameters:
       env:
@@ -269,7 +270,7 @@ root:
       git_url:
         parameterType: STRING
 schemaVersion: 2.1.0
-sdkVersion: kfp-2.11.0
+sdkVersion: kfp-2.12.2
 ---
 platforms:
   kubernetes:
@@ -278,13 +279,13 @@ platforms:
         exec-run-a-file:
           podMetadata:
             annotations:
-              elyra/node-file-name: ml-pipeline-experiments/ex1-mlflow_and_visual_pipeline/mlflow_external_envs.ipynb
-              elyra/pipeline-source: visual_pipeline.pipeline
+              elyra/node-file-name: ml-pipeline-experiments/ex5-mlflow_and_visual_pipeline/mlflow_external_envs.ipynb
+              elyra/pipeline-source: ex5-mlflow_and_visual_pipeline.pipeline
             labels:
               elyra/experiment-name: ''
               elyra/node-name: mlflow_external_envs
               elyra/node-type: notebook-script
-              elyra/pipeline-name: visual_pipeline
+              elyra/pipeline-name: ex5-mlflow_and_visual_pipeline
               elyra/pipeline-version: ''
           secretAsEnv:
           - keyToEnv:
@@ -293,3 +294,6 @@ platforms:
             - envVar: AWS_SECRET_ACCESS_KEY
               secretKey: AWS_SECRET_ACCESS_KEY
             secretName: dashboard-dspa-secret
+            secretNameParameter:
+              runtimeValue:
+                constant: dashboard-dspa-secret

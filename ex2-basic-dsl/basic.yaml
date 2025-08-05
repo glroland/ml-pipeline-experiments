@@ -1,5 +1,5 @@
 # PIPELINE DEFINITION
-# Name: ex2-simple-python-dsl-pipeline
+# Name: ex2-basic-dsl-basic
 # Inputs:
 #    input_age: int
 #    input_name: str
@@ -129,7 +129,7 @@ deploymentSpec:
           )\n    print(\"Greeting:\", greeting)\n    print(os.environ)\n\n"
         image: python:3.9
 pipelineInfo:
-  name: ex2-simple-python-dsl-pipeline
+  name: ex2-basic-dsl-basic
 root:
   dag:
     tasks:

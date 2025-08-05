@@ -3,22 +3,28 @@ import subprocess
 import kfp
 import kfp.client
 from kfp import dsl, components
-from kfp.dsl import InputPath, Output, Artifact, Model
 from kfp import compiler
 
-ex1_pipeline = components.load_component_from_file('../ex1-mlflow_and_visual_pipeline/visual_pipeline.yaml')
 
-ex2_pipeline = components.load_component_from_file('../ex2-mlflow_and_python_dsl_pipeline/pipeline.yaml')
+PIPELINE_NAME = "ex7-extended_python_dsl_pipeline"
+
+
+ex1_pipeline = components.load_component_from_file('../ex5-mlflow_and_visual_pipeline/ex5-mlflow_and_visual_pipeline.yaml')
+
+ex2_pipeline = components.load_component_from_file('../ex6-mlflow_and_python_dsl_pipeline/pipeline.yaml')
+
 
 @dsl.component
 def store_assets():
     pass
 
+
 @dsl.component
 def register_models():
     pass
 
-@dsl.pipeline(name="ex3 pipeline")
+
+@dsl.pipeline(name=PIPELINE_NAME)
 def train_model_pipeline(git_url: str, env: dict):
 
     ex1_pipeline()
@@ -40,11 +46,13 @@ def train_model_pipeline(git_url: str, env: dict):
 # Get OpenShift Token
 token = subprocess.check_output("oc whoami -t", shell=True, text=True).strip()
 
+
 # Connect to the pipeline server
-print ("Connecting to pipeline server")
-kfp_client = kfp.Client(host="https://ds-pipeline-dspa-pipeline-experiments.apps.ocp.home.glroland.com/",
+print("Connecting to pipeline server")
+kfp_client = kfp.Client(host="https://ds-pipeline-dspa-pipeline-sandbox.apps.ocp.home.glroland.com/",
                         existing_token=token,
                         verify_ssl=False)
+
 
 # Grab local environment variables
 env_to_propagate = dict()
@@ -59,17 +67,19 @@ if "MLFLOW_S3_ENDPOINT_URL" in os.environ:
 if "MLFLOW_S3_IGNORE_TLS" in os.environ:
     env_to_propagate["mlflow_s3_ignore_tls"] = os.environ["MLFLOW_S3_IGNORE_TLS"]
 
+
 # Create a run for the pipeline
-print ("Running Pipeline")
+print("Running Pipeline")
 kfp_client.create_run_from_pipeline_func(
     train_model_pipeline,
-    experiment_name="ex3 - experiment",
+    experiment_name=PIPELINE_NAME,
     arguments={
         "git_url": "https://github.com/glroland/ml-pipeline-experiments.git",
         "env": env_to_propagate
     }
 )
 
+
 # Compile Pipeline
-print ("Compiling Pipeline")
+print("Compiling Pipeline")
 compiler.Compiler().compile(train_model_pipeline, 'pipeline.yaml')

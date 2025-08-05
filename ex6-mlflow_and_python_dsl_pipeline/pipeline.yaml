@@ -1,5 +1,5 @@
 # PIPELINE DEFINITION
-# Name: ex2-pipeline
+# Name: ex6-mlflow-and-python-dsl-pipeline
 # Inputs:
 #    env: dict
 #    git_url: str
@@ -76,7 +76,7 @@ deploymentSpec:
           \    )\n\n"
         image: quay.io/modh/runtime-images:runtime-pytorch-ubi9-python-3.11-20250130
 pipelineInfo:
-  name: ex2-pipeline
+  name: ex6-mlflow-and-python-dsl-pipeline
 root:
   dag:
     tasks:
@@ -95,7 +95,7 @@ root:
               componentInputParameter: env
             run_from_dir:
               runtimeValue:
-                constant: ex2-mlflow_and_python_dsl_pipeline
+                constant: ex6-mlflow_and_python_dsl_pipeline
         taskInfo:
           name: mlflow-experiment
   inputDefinitions:

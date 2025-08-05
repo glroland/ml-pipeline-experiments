@@ -1,5 +1,5 @@
 # PIPELINE DEFINITION
-# Name: pythagorean
+# Name: ex2-basic-dsl-pythagorean
 # Inputs:
 #    a: float
 #    b: float
@@ -163,7 +163,7 @@ deploymentSpec:
           \ *\n\ndef square_root(x: float) -> float:\n    return x ** .5\n\n"
         image: python:3.9
 pipelineInfo:
-  name: pythagorean
+  name: ex2-basic-dsl-pythagorean
 root:
   dag:
     outputs:
