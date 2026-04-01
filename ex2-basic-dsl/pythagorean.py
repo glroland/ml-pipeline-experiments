@@ -35,7 +35,7 @@ def pythagorean(a: float, b: float) -> float:
 # Connect to the pipeline server
 print("Connecting to pipeline server")
 token = subprocess.check_output("oc whoami -t", shell=True, text=True).strip()
-kfp_client = kfp.Client(host="https://ds-pipeline-dspa-pipeline-sandbox.apps.ocp.home.glroland.com/",
+kfp_client = kfp.Client(host="https://ds-pipeline-dspa.pipelines.svc.cluster.local:8443",
                         existing_token=token,
                         verify_ssl=False)
 

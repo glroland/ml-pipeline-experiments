@@ -48,7 +48,7 @@ deploymentSpec:
         - -c
         - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip ||\
           \ python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1\
-          \ python3 -m pip install --quiet --no-warn-script-location 'kfp==2.12.2'\
+          \ python3 -m pip install --quiet --no-warn-script-location 'kfp==2.16.0'\
           \ '--no-deps' 'typing-extensions>=3.7.4,<5; python_version<\"3.9\"' && \"\
           $0\" \"$@\"\n"
         - sh
@@ -66,7 +66,7 @@ deploymentSpec:
           \    print(\"Step #1\")\n    print(\"Name:\", input_name)\n    print(\"\
           Age:\", input_age)\n    print(os.environ)\n\n    if input_age < 18:\n  \
           \      return \"MINOR\"\n    else:\n        return \"ADULT\"\n\n"
-        image: python:3.9
+        image: python:3.11
     exec-step-2:
       container:
         args:
@@ -79,7 +79,7 @@ deploymentSpec:
         - -c
         - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip ||\
           \ python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1\
-          \ python3 -m pip install --quiet --no-warn-script-location 'kfp==2.12.2'\
+          \ python3 -m pip install --quiet --no-warn-script-location 'kfp==2.16.0'\
           \ '--no-deps' 'typing-extensions>=3.7.4,<5; python_version<\"3.9\"' && \"\
           $0\" \"$@\"\n"
         - sh
@@ -98,7 +98,7 @@ deploymentSpec:
           Age Category:\", age_category)\n    greeting = f\"Thank you for representing\
           \ {age_category}s, {input_name}!\"\n    print(greeting)\n    print(os.environ)\n\
           \    return greeting\n\n"
-        image: python:3.9
+        image: python:3.11
     exec-step-3:
       container:
         args:
@@ -111,7 +111,7 @@ deploymentSpec:
         - -c
         - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip ||\
           \ python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1\
-          \ python3 -m pip install --quiet --no-warn-script-location 'kfp==2.12.2'\
+          \ python3 -m pip install --quiet --no-warn-script-location 'kfp==2.16.0'\
           \ '--no-deps' 'typing-extensions>=3.7.4,<5; python_version<\"3.9\"' && \"\
           $0\" \"$@\"\n"
         - sh
@@ -127,7 +127,7 @@ deploymentSpec:
         - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
           \ *\n\ndef step_3(greeting: str):\n    import os\n    print(\"Step #3\"\
           )\n    print(\"Greeting:\", greeting)\n    print(os.environ)\n\n"
-        image: python:3.9
+        image: python:3.11
 pipelineInfo:
   name: ex2-basic-dsl-basic
 root:
@@ -185,4 +185,4 @@ root:
       input_name:
         parameterType: STRING
 schemaVersion: 2.1.0
-sdkVersion: kfp-2.12.2
+sdkVersion: kfp-2.16.0

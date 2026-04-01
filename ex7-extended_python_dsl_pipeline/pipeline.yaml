@@ -83,7 +83,7 @@ deploymentSpec:
         - -c
         - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip ||\
           \ python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1\
-          \ python3 -m pip install --quiet --no-warn-script-location 'kfp==2.12.2'\
+          \ python3 -m pip install --quiet --no-warn-script-location 'kfp==2.16.0'\
           \ '--no-deps' 'typing-extensions>=3.7.4,<5; python_version<\"3.9\"' && \"\
           $0\" \"$@\"\n"
         - sh
@@ -98,7 +98,7 @@ deploymentSpec:
           '
         - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
           \ *\n\ndef register_models():\n    pass\n\n"
-        image: python:3.9
+        image: python:3.11
     exec-run-a-file:
       container:
         args:
@@ -203,7 +203,7 @@ deploymentSpec:
         - -c
         - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip ||\
           \ python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1\
-          \ python3 -m pip install --quiet --no-warn-script-location 'kfp==2.12.2'\
+          \ python3 -m pip install --quiet --no-warn-script-location 'kfp==2.16.0'\
           \ '--no-deps' 'typing-extensions>=3.7.4,<5; python_version<\"3.9\"' && \"\
           $0\" \"$@\"\n"
         - sh
@@ -218,7 +218,7 @@ deploymentSpec:
           '
         - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
           \ *\n\ndef store_assets():\n    pass\n\n"
-        image: python:3.9
+        image: python:3.11
 pipelineInfo:
   name: ex7-extended-python-dsl-pipeline
 root:
@@ -270,7 +270,7 @@ root:
       git_url:
         parameterType: STRING
 schemaVersion: 2.1.0
-sdkVersion: kfp-2.12.2
+sdkVersion: kfp-2.16.0
 ---
 platforms:
   kubernetes:

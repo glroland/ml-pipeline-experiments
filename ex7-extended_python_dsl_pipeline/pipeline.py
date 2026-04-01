@@ -49,7 +49,7 @@ token = subprocess.check_output("oc whoami -t", shell=True, text=True).strip()
 
 # Connect to the pipeline server
 print("Connecting to pipeline server")
-kfp_client = kfp.Client(host="https://ds-pipeline-dspa-pipeline-sandbox.apps.ocp.home.glroland.com/",
+kfp_client = kfp.Client(host="https://ds-pipeline-dspa.pipelines.svc.cluster.local:8443",
                         existing_token=token,
                         verify_ssl=False)
 
